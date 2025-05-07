@@ -13,7 +13,8 @@ const getAllAdmins = async (req: Request, res: Response) => {
     res.status(200).json({
       status: "success",
       message: "Admins fetched successfully",
-      data: result,
+      meta: result.meta,
+      data: result.data,
     });
   } catch (error) {
     res.status(500).json({
@@ -24,6 +25,39 @@ const getAllAdmins = async (req: Request, res: Response) => {
   }
 };
 
+const getSingleAdmin = async (req: Request, res: Response) => {
+  const result = await AdminService.getSingleAdmin(req.params.id)
+
+  res.status(200).json({
+    status: "success",
+    message: "Admin fetched successfully",
+    data: result,
+  });
+
+}
+
+const updateSingleAdmin = async (req: Request, res: Response) => {
+  const result= await AdminService.updateSingleAdmin(req.params.id, req.body)
+
+  res.status(200).json({
+    status: "success",
+    message: "Admin updated successfully",
+    data: result,
+  });
+}
+const deleteSingleAdmin = async (req: Request, res: Response) => {
+  const result= await AdminService.deleteSingleAdmin(req.params.id)
+
+  res.status(200).json({
+    status: "success",
+    message: "Admin deleted successfully",
+    data: result,
+  });
+}
+
 export const AdminController = {
   getAllAdmins,
+  getSingleAdmin,
+  updateSingleAdmin,
+  deleteSingleAdmin
 };
