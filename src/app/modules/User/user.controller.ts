@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
 import { sendResponse } from "../../../shared/sendResponse";
 import httpStatus from "http-status";
 
-const createAdmin = async (req: Request, res: Response) => {
+const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
   // console.log(req.body);
   try {
     const result = await UserService.createAdmin(req.body);
@@ -14,11 +14,7 @@ const createAdmin = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as { name?: string })?.name || "failed to create admin",
-      error: error,
-    });
+      next(error);
   }
 };
 

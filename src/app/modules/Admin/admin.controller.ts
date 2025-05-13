@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
 import { pick } from "../../../shared/pick";
 import { adminFilterableFields } from "./admin.constant";
@@ -7,7 +7,7 @@ import httpStatus from "http-status";
 
 
 
-const getAllAdmins = async (req: Request, res: Response) => {
+const getAllAdmins = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const filters = pick(req.query, adminFilterableFields);
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
@@ -26,28 +26,29 @@ const getAllAdmins = async (req: Request, res: Response) => {
 
 
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as { name?: string })?.name || "failed to fetch admins",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const getSingleAdmin = async (req: Request, res: Response) => {
-  const result = await AdminService.getSingleAdmin(req.params.id)
+const getSingleAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AdminService.getSingleAdmin(req.params.id)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,  
     success: true,
     message: "Admin fetched successfully",
     data: result,
-  })
+  })} catch (error) {
+    next(error);
+  }
+  
 
 }
 
-const updateSingleAdmin = async (req: Request, res: Response) => {
-  const result= await AdminService.updateSingleAdmin(req.params.id, req.body)
+const updateSingleAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const result= await AdminService.updateSingleAdmin(req.params.id, req.body)
 
   sendResponse(res, {
     statusCode: httpStatus.OK, 
@@ -55,16 +56,22 @@ const updateSingleAdmin = async (req: Request, res: Response) => {
     message: "Admin updated successfully",
     data: result,
   })
+  } catch (error) {
+    next(error);
+  }
 }
-const deleteSingleAdmin = async (req: Request, res: Response) => {
-  const result= await AdminService.deleteSingleAdmin(req.params.id)
+const deleteSingleAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const result= await AdminService.deleteSingleAdmin(req.params.id)
 
   sendResponse(res, {
     statusCode: httpStatus.OK, 
     success: true,
     message: "Admin deleted successfully",
     data: result,
-  })
+  })} catch (error) {
+    next(error);    
+      }
 }
 
 export const AdminController = {
