@@ -14,12 +14,7 @@ const getAllAdmins = async (req: Request, res: Response) => {
 
     const result = await AdminService.getAllAdmins(filters, options);
 
-    // res.status(200).json({
-    //   status: "success",
-    //   message: "Admins fetched successfully",
-    //   meta: result.meta,
-    //   data: result.data,
-    // });
+
 
     sendResponse(res, {
       statusCode: 200,
