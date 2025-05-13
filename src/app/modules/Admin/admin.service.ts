@@ -49,6 +49,10 @@ const getAllAdmins = async (params: any, options: any) => {
       })),
     });
   }
+
+  andCondition.push({
+    isDeleted: false,
+  });
   // console.dir(andCondition, { depth: Infinity });
 
   const whereCondition: Prisma.AdminWhereInput = { AND: andCondition };
@@ -60,7 +64,7 @@ const getAllAdmins = async (params: any, options: any) => {
   const result = await prisma.admin.findMany({
     where: whereCondition,
     skip,
-    take: limit,
+    take: limit,    
     orderBy:
       options.sortBy && options.sortOrder
         ? { [options.sortBy]: options.sortOrder }
