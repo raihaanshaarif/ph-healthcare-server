@@ -3,11 +3,22 @@ import { Admin, Prisma } from "@prisma/client";
 import { adminSearchableFields } from "./admin.constant";
 import { calculatePagination } from "../../../helpers/paginationHelper";
 import { prisma } from "../../../shared/prisma";
+import { IAdminFilterRequest } from "./admin.interface";
+import { IPaginationOptions } from "../../interfaces/pagination";
 
-const getAllAdmins = async (params: any, options: any) => {
-  // console.log({ params });
+const getAllAdmins = async (
+  params: IAdminFilterRequest,
+  options: IPaginationOptions
+) => {
+  // Ensure page, limit are numbers and sortBy, sortOrder are strings
+  const safeOptions = {
+    page: options.page ?? 1,
+    limit: options.limit ?? 10,
+    sortBy: options.sortBy ?? "createdAt",
+    sortOrder: options.sortOrder ?? "desc",
+  };
 
-  const { limit, page, skip } = calculatePagination(options);
+  const { limit, page, skip } = calculatePagination(safeOptions);
 
   const { searchTerm, ...filterableData } = params;
 
@@ -44,7 +55,7 @@ const getAllAdmins = async (params: any, options: any) => {
     andCondition.push({
       AND: Object.keys(filterableData).map((key) => ({
         [key]: {
-          equals: filterableData[key],
+          equals: (filterableData as any)[key],
         },
       })),
     });
@@ -58,13 +69,13 @@ const getAllAdmins = async (params: any, options: any) => {
   const whereCondition: Prisma.AdminWhereInput = { AND: andCondition };
 
   const total = await prisma.admin.count({
-    where: whereCondition,  
-  })
+    where: whereCondition,
+  });
 
   const result = await prisma.admin.findMany({
     where: whereCondition,
     skip,
-    take: limit,    
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? { [options.sortBy]: options.sortOrder }
@@ -75,86 +86,84 @@ const getAllAdmins = async (params: any, options: any) => {
     meta: {
       page,
       limit,
-      total
-    },    
-    data:result
-  }
+      total,
+    },
+    data: result,
+  };
 };
-const getSingleAdmin= async(id: string):Promise<Admin | null> =>{
+const getSingleAdmin = async (id: string): Promise<Admin | null> => {
   const result = await prisma.admin.findUnique({
     where: {
       id: id,
-      isDeleted: false
-    }
-  })
-  return result
-}
+      isDeleted: false,
+    },
+  });
+  return result;
+};
 
-const updateSingleAdmin = async(id: string, payload: any):Promise<Admin| null> =>  {
-
-  const isExist = await prisma.admin.findUniqueOrThrow({
-    where: {
-      id: id,
-      isDeleted: false
-    }
-  }).catch((err) => {
-    throw new Error("Admin not found")
-  })
+const updateSingleAdmin = async (
+  id: string,
+  payload: any
+): Promise<Admin | null> => {
+  const isExist = await prisma.admin
+    .findUniqueOrThrow({
+      where: {
+        id: id,
+        isDeleted: false,
+      },
+    })
+    .catch((err) => {
+      throw new Error("Admin not found");
+    });
 
   console.log(id, payload);
-  const result = await prisma.admin.update(
-    {
-      where: {
-        id: id
-      },
-      data: payload
-    }
-  )
-  return result
-}
-
-const deleteSingleAdmin = async(id: string) => {
-  const isExist = await prisma.admin.findUniqueOrThrow({
+  const result = await prisma.admin.update({
     where: {
       id: id,
-      isDeleted: false
-    }
-  }).catch((err) => {
-    throw new Error("Admin not found")
-  }
-  )
+    },
+    data: payload,
+  });
+  return result;
+};
 
-  const result= await prisma.$transaction(async (tx) => {
+const deleteSingleAdmin = async (id: string) => {
+  const isExist = await prisma.admin
+    .findUniqueOrThrow({
+      where: {
+        id: id,
+        isDeleted: false,
+      },
+    })
+    .catch((err) => {
+      throw new Error("Admin not found");
+    });
+
+  const result = await prisma.$transaction(async (tx) => {
     const deleteAdmin = await tx.admin.update({
       where: {
-        id: id
+        id: id,
       },
-      data:{
+      data: {
         isDeleted: true,
-      }
-    })
+      },
+    });
 
     await tx.user.update({
       where: {
-        email: deleteAdmin.email
+        email: deleteAdmin.email,
       },
       data: {
-        status: "DELETED"
-      }
-    })
+        status: "DELETED",
+      },
+    });
 
-    return deleteAdmin
-  })
-
-}
-
-
-
-
+    return deleteAdmin;
+  });
+};
 
 export const AdminService = {
   getAllAdmins,
   getSingleAdmin,
   updateSingleAdmin,
-  deleteSingleAdmin
+  deleteSingleAdmin,
 };
