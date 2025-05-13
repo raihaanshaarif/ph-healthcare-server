@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Admin, Prisma } from "@prisma/client";
 
 import { adminSearchableFields } from "./admin.constant";
 import { calculatePagination } from "../../../helpers/paginationHelper";
@@ -80,20 +80,22 @@ const getAllAdmins = async (params: any, options: any) => {
     data:result
   }
 };
-const getSingleAdmin= async(id: string) =>{
+const getSingleAdmin= async(id: string):Promise<Admin | null> =>{
   const result = await prisma.admin.findUnique({
     where: {
-      id: id
+      id: id,
+      isDeleted: false
     }
   })
   return result
 }
 
-const updateSingleAdmin = async(id: string, payload: any) =>  {
+const updateSingleAdmin = async(id: string, payload: any):Promise<Admin| null> =>  {
 
   const isExist = await prisma.admin.findUniqueOrThrow({
     where: {
-      id: id
+      id: id,
+      isDeleted: false
     }
   }).catch((err) => {
     throw new Error("Admin not found")
@@ -114,7 +116,8 @@ const updateSingleAdmin = async(id: string, payload: any) =>  {
 const deleteSingleAdmin = async(id: string) => {
   const isExist = await prisma.admin.findUniqueOrThrow({
     where: {
-      id: id
+      id: id,
+      isDeleted: false
     }
   }).catch((err) => {
     throw new Error("Admin not found")
@@ -131,7 +134,7 @@ const deleteSingleAdmin = async(id: string) => {
       }
     })
 
-    const deleteUser = await tx.user.update({
+    await tx.user.update({
       where: {
         email: deleteAdmin.email
       },

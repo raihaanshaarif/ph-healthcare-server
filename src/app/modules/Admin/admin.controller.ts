@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { AdminService } from "./admin.service";
 import { pick } from "../../../shared/pick";
 import { adminFilterableFields } from "./admin.constant";
+import { sendResponse } from "../../../shared/sendResponse";
+
+
+
 
 const getAllAdmins = async (req: Request, res: Response) => {
   try {
@@ -10,12 +14,22 @@ const getAllAdmins = async (req: Request, res: Response) => {
 
     const result = await AdminService.getAllAdmins(filters, options);
 
-    res.status(200).json({
-      status: "success",
+    // res.status(200).json({
+    //   status: "success",
+    //   message: "Admins fetched successfully",
+    //   meta: result.meta,
+    //   data: result.data,
+    // });
+
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
       message: "Admins fetched successfully",
       meta: result.meta,
       data: result.data,
-    });
+    })
+
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -28,31 +42,34 @@ const getAllAdmins = async (req: Request, res: Response) => {
 const getSingleAdmin = async (req: Request, res: Response) => {
   const result = await AdminService.getSingleAdmin(req.params.id)
 
-  res.status(200).json({
-    status: "success",
+  sendResponse(res, {
+    statusCode: 200,  
+    success: true,
     message: "Admin fetched successfully",
     data: result,
-  });
+  })
 
 }
 
 const updateSingleAdmin = async (req: Request, res: Response) => {
   const result= await AdminService.updateSingleAdmin(req.params.id, req.body)
 
-  res.status(200).json({
-    status: "success",
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
     message: "Admin updated successfully",
     data: result,
-  });
+  })
 }
 const deleteSingleAdmin = async (req: Request, res: Response) => {
   const result= await AdminService.deleteSingleAdmin(req.params.id)
 
-  res.status(200).json({
-    status: "success",
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
     message: "Admin deleted successfully",
     data: result,
-  });
+  })
 }
 
 export const AdminController = {
