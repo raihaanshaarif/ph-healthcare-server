@@ -1,7 +1,8 @@
 import { prisma } from "../../../shared/prisma";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
+import config from "../../../config";
 
 // const generateToken = (payload: any, secret: string, expiresIn: string) => {
 //   const token = jwt.sign(payload, secret, {
@@ -35,8 +36,8 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: userData?.email,
       role: userData?.role,
     },
-    process.env.JWT_ACCESS_SECRET as string,
-    "5m"
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expiresIn as string
   );
 
   const refreshToken = jwtHelpers.generateToken(
@@ -44,8 +45,8 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: userData?.email,
       role: userData?.role,
     },
-    process.env.JWT_REFRESH_SECRET as string,
-    "30d"
+    config.jwt.refreshTokenSecret as Secret,
+    config.jwt.refreshTokenExpiresIn as string
   );
 
   return {
@@ -61,7 +62,7 @@ const refreshToken = async (token: string) => {
   try {
     decodedData = jwtHelpers.verifyToken(
       token,
-      process.env.JWT_REFRESH_SECRET as string
+      config.jwt.refreshTokenSecret as Secret
     );
   } catch (error) {
     throw new Error("Invalid refresh token");
@@ -81,8 +82,8 @@ const refreshToken = async (token: string) => {
       email: userData?.email,
       role: userData?.role,
     },
-    process.env.JWT_ACCESS_SECRET as string,
-    "5m"
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expiresIn as string
   );
   return {
     accessToken,
