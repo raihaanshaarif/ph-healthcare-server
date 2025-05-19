@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { env } from 'process';
 import path from 'path';
+import e from 'express';
 
 dotenv.config({path: path.join(process.cwd(), '.env')});
 
@@ -14,6 +15,12 @@ export default {
         expiresIn: process.env.EXPIRES_IN,
         refreshTokenSecret: process.env.JWT_REFRESH_SECRET,
         refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ,
+        resetPasswordSecret: process.env.RESET_PASSWORD_SECRET,
+        resetPasswordExpiresIn: process.env.RESET_PASSWORD_EXPIRES_IN,
+    },
+    reset_pass_link: process.env.RESET_PASS_LINK,
+    emailSender: {
+        email: process.env.EMAIL,
+        password: process.env.APP_PASSWORD,
     }
-
 }

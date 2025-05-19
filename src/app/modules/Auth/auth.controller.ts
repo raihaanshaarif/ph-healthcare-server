@@ -37,7 +37,55 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const user= req.user
+  const result = await AuthService.changePassword(user, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Password Changed successfully",
+    data: result,
+  });
+});
+
+const forgetPassword = catchAsync(async (req: Request, res: Response) => {
+ 
+  const result = await AuthService.forgetPassword(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Password Changed successfully",
+    data: result,
+  });
+});
+
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new Error("Authorization token is required");
+  }
+  const { userId, newPassword } = req.body;
+  const result = await AuthService.resetPassword({ userId, token, newPassword });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Password reset successfully",
+    data: result,
+  });
+
+}
+);
+
+
+
+
 export const AuthController = {
   loginUser,
   refreshToken,
+  changePassword,
+  forgetPassword,
+  resetPassword
 };
