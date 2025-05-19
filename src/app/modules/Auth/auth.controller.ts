@@ -38,7 +38,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 });
 
 const changePassword = catchAsync(async (req: Request, res: Response) => {
-  const user= req.user
+  const user = req.user;
   const result = await AuthService.changePassword(user, req.body);
 
   sendResponse(res, {
@@ -50,7 +50,6 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const forgetPassword = catchAsync(async (req: Request, res: Response) => {
- 
   const result = await AuthService.forgetPassword(req.body);
 
   sendResponse(res, {
@@ -67,7 +66,11 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
     throw new Error("Authorization token is required");
   }
   const { userId, newPassword } = req.body;
-  const result = await AuthService.resetPassword({ userId, token, newPassword });
+  const result = await AuthService.resetPassword({
+    userId,
+    token,
+    newPassword,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -75,17 +78,12 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
     message: "Password reset successfully",
     data: result,
   });
-
-}
-);
-
-
-
+});
 
 export const AuthController = {
   loginUser,
   refreshToken,
   changePassword,
   forgetPassword,
-  resetPassword
+  resetPassword,
 };

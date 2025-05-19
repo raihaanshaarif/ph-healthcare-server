@@ -1,6 +1,6 @@
 import { prisma } from "../../../shared/prisma";
 import bcrypt from "bcrypt";
-import  { Secret } from "jsonwebtoken";
+import { Secret } from "jsonwebtoken";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import config from "../../../config";
 import { AuthUser, ChangePasswordPayload } from "./auth.constant";
@@ -97,8 +97,6 @@ const refreshToken = async (token: string) => {
   };
 };
 
-
-
 const changePassword = async (
   user: AuthUser,
   payload: ChangePasswordPayload
@@ -135,8 +133,7 @@ const changePassword = async (
   });
 
   return updatedUser;
-  
-}
+};
 
 const forgetPassword = async (payload: { email: string }) => {
   // console.log(payload);
@@ -162,22 +159,24 @@ const forgetPassword = async (payload: { email: string }) => {
   // console.log(resetToken);
 
   // Send the reset token to the user's email
-  const resetLink = config.reset_pass_link + `?userId=${userData?.id}&token=${resetToken}`;
+  const resetLink =
+    config.reset_pass_link + `?userId=${userData?.id}&token=${resetToken}`;
   console.log(resetLink);
   await emailSender({
-    to: userData?.email,  
+    to: userData?.email,
     subject: "Password Reset",
     // text: `Click the link to reset your password: ${resetLink}`,
     html: `<a href="${resetLink}">Click here to reset your password</a>`,
   });
 
+  console.log(resetLink);
+};
 
-  console.log(resetLink);  
-
-
-}
-
-const resetPassword = async (payload: { userId: string; token: string; newPassword: string }) => {
+const resetPassword = async (payload: {
+  userId: string;
+  token: string;
+  newPassword: string;
+}) => {
   // Verify the reset token
   let decodedData;
   try {
@@ -212,14 +211,12 @@ const resetPassword = async (payload: { userId: string; token: string; newPasswo
   });
 
   return updatedUser;
-}
-
-
+};
 
 export const AuthService = {
   loginUser,
   refreshToken,
   changePassword,
   forgetPassword,
-  resetPassword
+  resetPassword,
 };
